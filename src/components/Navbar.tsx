@@ -38,8 +38,8 @@ export default function Navbar() {
           <Image
             src="/images/stan_automation_logo_transparent.png"
             alt="StanAutomation Logo"
-            width={1582}
-            height={310}
+            width={163}
+            height={32}
             className="h-8 w-auto object-contain"
             priority
           />

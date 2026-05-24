@@ -7,18 +7,21 @@ const jakarta = Urbanist({
   variable: "--font-jakarta",
   subsets: ["latin"],
   weight: ["600", "700", "800"],
+  display: "swap",
 });
 
 const inter = Manrope({
   variable: "--font-inter",
   subsets: ["latin"],
   weight: ["400", "500", "600"],
+  display: "swap",
 });
 
 const mono = Space_Grotesk({
   variable: "--font-mono",
   subsets: ["latin"],
   weight: ["700"],
+  display: "swap",
 });
 
 export const metadata: Metadata = {
