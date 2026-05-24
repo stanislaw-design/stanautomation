@@ -7,6 +7,7 @@ import HowItWorks from "@/components/sections/HowItWorks";
 import Comparison from "@/components/sections/Comparison";
 import Pricing from "@/components/sections/Pricing";
 import Trojmiasto from "@/components/sections/Trojmiasto";
+import FAQ from "@/components/sections/FAQ";
 import FinalCTA from "@/components/sections/FinalCTA";
 import Footer from "@/components/Footer";
 
@@ -22,6 +23,7 @@ export default function Home() {
       <Comparison />
       <Pricing />
       <Trojmiasto />
+      <FAQ />
       <FinalCTA />
       <Footer />
     </main>
