@@ -12,6 +12,34 @@ export default function PhoneAnimationPlayer() {
   const frameRef = useRef(0);
   const lastTimeRef = useRef<number | null>(null);
   const rafRef = useRef<number>(0);
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  const [isInView, setIsInView] = useState(false);
+  const [shouldStart, setShouldStart] = useState(false);
+
+  // Delay the animation to free up the main thread on initial page load
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setShouldStart(true);
+    }, 1500);
+    return () => clearTimeout(timer);
+  }, []);
+
+  // Use IntersectionObserver to stop calculations when the hero is out of view
+  useEffect(() => {
+    const el = containerRef.current;
+    if (!el) return;
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        setIsInView(entry.isIntersecting);
+      },
+      { threshold: 0.05 }
+    );
+
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, []);
 
   const tick = useCallback((timestamp: number) => {
     if (lastTimeRef.current === null) {
@@ -28,9 +56,26 @@ export default function PhoneAnimationPlayer() {
   }, []);
 
   useEffect(() => {
-    rafRef.current = requestAnimationFrame(tick);
-    return () => cancelAnimationFrame(rafRef.current);
-  }, [tick]);
+    if (!isInView || !shouldStart) {
+      if (rafRef.current) {
+        cancelAnimationFrame(rafRef.current);
+        rafRef.current = 0;
+      }
+      lastTimeRef.current = null;
+      return;
+    }
 
-  return <PhoneFrame frame={frame} fps={FPS} />;
+    rafRef.current = requestAnimationFrame(tick);
+    return () => {
+      if (rafRef.current) {
+        cancelAnimationFrame(rafRef.current);
+      }
+    };
+  }, [tick, isInView, shouldStart]);
+
+  return (
+    <div ref={containerRef}>
+      <PhoneFrame frame={frame} fps={FPS} />
+    </div>
+  );
 }

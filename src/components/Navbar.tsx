@@ -1,7 +1,8 @@
-﻿"use client";
+"use client";
 
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import Image from "next/image";
 import posthog from "posthog-js";
 
 const links = [
@@ -31,10 +32,17 @@ export default function Navbar() {
       <div className="max-w-[1200px] mx-auto px-6 h-16 flex items-center justify-between">
         <button
           onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
-          className="font-[family-name:var(--font-jakarta)] text-[#00171f] text-lg tracking-tight"
-          style={{ fontWeight: 800 }}
+          className="flex items-center"
+          aria-label="StanAutomation"
         >
-          Stan<span className="text-[#1d4ed8]">Automation</span>
+          <Image
+            src="/images/stan_automation_logo_transparent.png"
+            alt="StanAutomation Logo"
+            width={1582}
+            height={310}
+            className="h-8 w-auto object-contain"
+            priority
+          />
         </button>
 
         <div className="hidden md:flex items-center gap-8">

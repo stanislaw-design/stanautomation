@@ -1,8 +1,6 @@
-﻿"use client";
+"use client";
 
-import { useEffect, useRef } from "react";
-import { gsap } from "gsap";
-import { ScrollTrigger } from "gsap/ScrollTrigger";
+import { useEffect, useState, useRef } from "react";
 
 const stats = [
   { value: 90, suffix: "+", label: "PageSpeed", sublabel: "strona ładuje się błyskawicznie" },
@@ -11,70 +9,102 @@ const stats = [
   { value: 100, suffix: "%", label: "zwrot", sublabel: "jeśli nie spodoba" },
 ];
 
-export default function StatsStrip() {
-  const sectionRef = useRef<HTMLDivElement>(null);
-  const countersRef = useRef<HTMLSpanElement[]>([]);
+function StatItem({ value, suffix, label, sublabel, isLast, isOdd }: {
+  value: number;
+  suffix: string;
+  label: string;
+  sublabel: string;
+  isLast: boolean;
+  isOdd: boolean;
+}) {
+  const [count, setCount] = useState(0);
+  const elRef = useRef<HTMLSpanElement>(null);
+  const hasAnimated = useRef(false);
 
   useEffect(() => {
-    gsap.registerPlugin(ScrollTrigger);
+    const el = elRef.current;
+    if (!el) return;
 
-    const ctx = gsap.context(() => {
-      stats.forEach((stat, i) => {
-        const el = countersRef.current[i];
-        if (!el) return;
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting && !hasAnimated.current) {
+          hasAnimated.current = true;
+          animateCount();
+        }
+      },
+      { threshold: 0.1, rootMargin: "0px 0px -50px 0px" }
+    );
 
-        gsap.fromTo(
-          el,
-          { textContent: "0" },
-          {
-            textContent: String(stat.value),
-            duration: 0.8,
-            ease: "power2.out",
-            snap: { textContent: 1 },
-            scrollTrigger: {
-              trigger: sectionRef.current,
-              start: "top 80%",
-              once: true,
-            },
-          }
-        );
-      });
-    }, sectionRef);
+    observer.observe(el);
+    return () => observer.disconnect();
 
-    return () => ctx.revert();
-  }, []);
+    function animateCount() {
+      const duration = 1000; // 1 second
+      let startTime: number | null = null;
+
+      function step(timestamp: number) {
+        if (!startTime) startTime = timestamp;
+        const progress = Math.min((timestamp - startTime) / duration, 1);
+        
+        // easeOutQuad: t * (2 - t)
+        const easeProgress = progress * (2 - progress);
+        const currentValue = Math.floor(easeProgress * value);
+
+        setCount(currentValue);
+
+        if (progress < 1) {
+          requestAnimationFrame(step);
+        } else {
+          setCount(value);
+        }
+      }
+
+      requestAnimationFrame(step);
+    }
+  }, [value]);
 
   return (
-    <section ref={sectionRef} className="bg-[#0d1a4a] section-divider">
+    <div
+      className={`flex flex-col items-center text-center px-6 py-6 ${
+        !isLast ? "border-b lg:border-b-0 lg:border-r border-white/10" : ""
+      } ${isOdd && !isLast ? "border-r lg:border-r-0" : ""}`}
+    >
+      <div className="flex items-baseline gap-0.5 mb-2">
+        <span
+          ref={elRef}
+          className="font-[family-name:var(--font-mono)] font-bold text-[clamp(40px,5vw,64px)] text-white tabular-nums leading-none"
+        >
+          {count}
+        </span>
+        <span className="font-[family-name:var(--font-mono)] font-bold text-[clamp(28px,3vw,48px)] text-white leading-none">
+          {suffix}
+        </span>
+      </div>
+      <p className="text-white/80 font-[family-name:var(--font-inter)] font-medium text-sm tracking-wide mb-0.5">
+        {label}
+      </p>
+      <p className="text-white/40 font-[family-name:var(--font-inter)] text-xs uppercase tracking-[0.08em]">
+        {sublabel}
+      </p>
+    </div>
+  );
+}
+
+export default function StatsStrip() {
+  return (
+    <section className="bg-[#0d1a4a] section-divider">
       <div className="max-w-[1200px] mx-auto px-6 py-12">
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-0">
           {stats.map((stat, i) => (
-            <div
+            <StatItem
               key={i}
-              className={`flex flex-col items-center text-center px-6 py-6 ${
-                i < stats.length - 1
-                  ? "border-b lg:border-b-0 lg:border-r border-white/10"
-                  : ""
-              } ${i % 2 === 0 && i < stats.length - 1 ? "border-r lg:border-r-0" : ""}`}
-            >
-              <div className="flex items-baseline gap-0.5 mb-2">
-                <span
-                  ref={(el) => { if (el) countersRef.current[i] = el; }}
-                  className="font-[family-name:var(--font-mono)] font-bold text-[clamp(40px,5vw,64px)] text-white tabular-nums leading-none"
-                >
-                  0
-                </span>
-                <span className="font-[family-name:var(--font-mono)] font-bold text-[clamp(28px,3vw,48px)] text-white leading-none">
-                  {stat.suffix}
-                </span>
-              </div>
-              <p className="text-white/80 font-[family-name:var(--font-inter)] font-medium text-sm tracking-wide mb-0.5">
-                {stat.label}
-              </p>
-              <p className="text-white/40 font-[family-name:var(--font-inter)] text-xs uppercase tracking-[0.08em]">
-                {stat.sublabel}
-              </p>
-            </div>
+              value={stat.value}
+              suffix={stat.suffix}
+              label={stat.label}
+              sublabel={stat.sublabel}
+              isLast={i === stats.length - 1}
+              isOdd={i % 2 === 0}
+            />
           ))}
         </div>
       </div>

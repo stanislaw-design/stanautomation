@@ -1,5 +1,82 @@
 import React from "react";
-import { interpolate, spring, Easing } from "remotion";
+// Custom lightweight animations to avoid heavy "remotion" package
+export const Easing = {
+  cubic: (t: number) => t * t * t,
+  out: (easingFn: (t: number) => number) => {
+    return (t: number) => 1 - easingFn(1 - t);
+  },
+};
+
+export function interpolate(
+  value: number,
+  inputRange: [number, number],
+  outputRange: [number, number],
+  options?: {
+    extrapolateLeft?: "extend" | "clamp" | "identity";
+    extrapolateRight?: "extend" | "clamp" | "identity";
+    easing?: (t: number) => number;
+  }
+): number {
+  const [inputMin, inputMax] = inputRange;
+  const [outputMin, outputMax] = outputRange;
+
+  const extrapolateLeft = options?.extrapolateLeft ?? "extend";
+  const extrapolateRight = options?.extrapolateRight ?? "extend";
+  const easing = options?.easing;
+
+  if (value <= inputMin) {
+    if (extrapolateLeft === "clamp") return outputMin;
+    if (extrapolateLeft === "identity") return value;
+  }
+
+  if (value >= inputMax) {
+    if (extrapolateRight === "clamp") return outputMax;
+    if (extrapolateRight === "identity") return value;
+  }
+
+  let t = (value - inputMin) / (inputMax - inputMin);
+
+  if (extrapolateLeft === "clamp" && t < 0) t = 0;
+  if (extrapolateRight === "clamp" && t > 1) t = 1;
+
+  if (easing) {
+    t = easing(t);
+  }
+
+  return outputMin + t * (outputMax - outputMin);
+}
+
+export function spring({
+  frame,
+  fps = 30,
+  config = {},
+}: {
+  frame: number;
+  fps?: number;
+  config?: { damping?: number; stiffness?: number; mass?: number };
+}): number {
+  const damping = config.damping ?? 22;
+  const stiffness = config.stiffness ?? 120;
+  const mass = config.mass ?? 1;
+
+  const dt = 1 / fps;
+  const subSteps = 10;
+  const subDt = dt / subSteps;
+
+  let x = 0;
+  let v = 0;
+
+  for (let f = 0; f < frame; f++) {
+    for (let s = 0; s < subSteps; s++) {
+      const force = -stiffness * (x - 1) - damping * v;
+      const a = force / mass;
+      v += a * subDt;
+      x += v * subDt;
+    }
+  }
+
+  return x;
+}
 
 const SEARCH_TEXT = "restauracje w trojmieście";
 

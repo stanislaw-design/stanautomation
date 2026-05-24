@@ -1,22 +1,29 @@
-﻿"use client";
+"use client";
 
-import { motion } from "framer-motion";
+import { useRef, useEffect } from "react";
+import { motion, useInView } from "framer-motion";
 import posthog from "posthog-js";
 
 const demos = [
   {
     city: "Gdańsk",
-    type: "Restauracja włoska",
-    accent: "from-amber-50 to-[#e8f5fc]",
-    border: "border-amber-100",
-    tags: ["Pasta", "Pizza", "Wino"],
+    type: "Burgerownia kraftowa",
+    accent: "from-amber-50 to-orange-50",
+    border: "border-orange-100",
+    tags: ["Burgery", "Frytki", "Krafty"],
+    videoUrl: "/viedos/burger-resaurant.mp4",
+    thumbnailUrl: "",
+    demoUrl: "https://burger-template-mauve.vercel.app/",
   },
   {
     city: "Gdynia",
-    type: "Restauracja morska",
-    accent: "from-[#e8f5fc] to-cyan-50",
+    type: "Restauracja grecka",
+    accent: "from-[#e8f5fc] to-blue-50",
     border: "border-[#c8e9f7]",
-    tags: ["Ryby", "Owoce morza", "Taras"],
+    tags: ["Moussaka", "Gyros", "Owoce morza"],
+    videoUrl: "/viedos/greek-resturant.mp4",
+    thumbnailUrl: "",
+    demoUrl: "https://greek-nine.vercel.app/",
   },
   {
     city: "Sopot",
@@ -24,12 +31,34 @@ const demos = [
     accent: "from-emerald-50 to-[#e8f5fc]",
     border: "border-emerald-100",
     tags: ["Pierogi", "Żurek", "Sezonowe"],
+    videoUrl: "", // Fallback to static interactive preview if no video available
+    thumbnailUrl: "",
+    demoUrl: "#",
   },
 ];
 
 function DemoCard({ demo, index }: { demo: typeof demos[0]; index: number }) {
+  const cardRef = useRef<HTMLDivElement>(null);
+  const videoRef = useRef<HTMLVideoElement>(null);
+  const isInView = useInView(cardRef, { amount: 0.4 });
+
+  useEffect(() => {
+    const video = videoRef.current;
+    if (!video) return;
+
+    if (isInView) {
+      video.play().catch((error) => {
+        // Prevent errors when browser blocks autoplay policies
+        console.debug("Autoplay prevented or interrupted:", error);
+      });
+    } else {
+      video.pause();
+    }
+  }, [isInView]);
+
   return (
     <motion.div
+      ref={cardRef}
       initial={{ opacity: 0, y: 24 }}
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true }}
@@ -37,7 +66,24 @@ function DemoCard({ demo, index }: { demo: typeof demos[0]; index: number }) {
       className={`group bg-white border ${demo.border} rounded-2xl overflow-hidden hover:border-[#1d4ed8] transition-all duration-200 hover:shadow-xl hover:shadow-[#1d4ed8]/10 shadow-md shadow-[#003459]/5`}
     >
       <div className={`bg-gradient-to-br ${demo.accent} aspect-[16/10] relative overflow-hidden`}>
-        <div className="absolute inset-0 p-5 flex flex-col justify-between">
+        {/* HTML5 Video Layer */}
+        {demo.videoUrl && (
+          <video
+            ref={videoRef}
+            src={demo.videoUrl}
+            poster={demo.thumbnailUrl}
+            preload="none"
+            loop
+            muted
+            playsInline
+            className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-500 z-10 ${
+              isInView ? "opacity-100" : "opacity-0"
+            }`}
+          />
+        )}
+
+        {/* Foreground Content (always on top of background/video) */}
+        <div className="absolute inset-0 p-5 flex flex-col justify-between z-20">
           <div className="flex justify-between items-start">
             <div className="bg-white/80 backdrop-blur-sm rounded-lg px-3 py-1.5 border border-[#c8e9f7]">
               <span className="text-[#003459] text-xs font-medium">{demo.city}</span>
@@ -50,7 +96,15 @@ function DemoCard({ demo, index }: { demo: typeof demos[0]; index: number }) {
               ))}
             </div>
           </div>
-          <div>
+
+          {/* Static Booking Mockup Widget (fades out and slides down when video plays on hover) */}
+          <div
+            className={`transition-all duration-300 transform ${
+              isInView && demo.videoUrl
+                ? "opacity-0 translate-y-4 pointer-events-none"
+                : "opacity-100 translate-y-0"
+            }`}
+          >
             <div className="space-y-1.5 mb-3">
               {[1, 2, 3].map((j) => (
                 <div key={j} className="flex items-center justify-between bg-white/70 rounded-lg px-3 py-1.5 border border-white/80">
@@ -80,12 +134,15 @@ function DemoCard({ demo, index }: { demo: typeof demos[0]; index: number }) {
           {demo.type}
         </h3>
         <p className="text-[#003459]/50 text-sm mb-4">{demo.city}</p>
-        <button
+        <a
+          href={demo.demoUrl}
+          target="_blank"
+          rel="noopener noreferrer"
           onClick={() => posthog.capture("demo_card_clicked", { city: demo.city, restaurant_type: demo.type })}
-          className="w-full text-[#1e40af] border border-[#1e40af]/30 rounded-xl py-2.5 text-sm font-medium hover:border-[#1d4ed8] hover:text-[#1d4ed8] hover:bg-[#f0f9ff] transition-all duration-150"
+          className="block w-full text-center text-[#1e40af] border border-[#1e40af]/30 rounded-xl py-2.5 text-sm font-medium hover:border-[#1d4ed8] hover:text-[#1d4ed8] hover:bg-[#f0f9ff] transition-all duration-150"
         >
           Zobacz demo →
-        </button>
+        </a>
       </div>
     </motion.div>
   );

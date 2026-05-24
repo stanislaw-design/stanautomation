@@ -1,4 +1,6 @@
-﻿const footerLinks = [
+import Image from "next/image";
+
+const footerLinks = [
   { label: "Usługi", href: "#uslugi" },
   { label: "Cennik", href: "#cennik" },
   { label: "Demo", href: "#demo" },
@@ -13,9 +15,15 @@ export default function Footer() {
           <div>
             <a
               href="/"
-              className="font-[family-name:var(--font-jakarta)] font-extrabold text-xl text-[#00171f] mb-3 block"
+              className="mb-3 block"
             >
-              Stan<span className="text-[#1d4ed8]">Automation</span>
+              <Image
+                src="/images/stan_automation_logo_transparent.png"
+                alt="StanAutomation Logo"
+                width={1582}
+                height={310}
+                className="h-8 w-auto object-contain"
+              />
             </a>
             <p className="text-[#003459]/50 text-sm font-[family-name:var(--font-inter)] leading-relaxed">
               Technologiczny partner dla restauracji w Trójmieście.
