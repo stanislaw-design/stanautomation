@@ -97,6 +97,13 @@ export default function Navbar() {
                   {link.label}
                 </a>
               ))}
+              <a
+                href="#kontakt"
+                onClick={() => { posthog.capture("navbar_cta_clicked"); setOpen(false); }}
+                className="bg-[#1d4ed8] hover:bg-[#1d4ed8]/90 text-white text-sm font-[family-name:var(--font-inter)] font-semibold px-4 py-2 rounded-lg transition-colors duration-200 text-center"
+              >
+                Umów demo
+              </a>
             </div>
           </motion.div>
         )}
