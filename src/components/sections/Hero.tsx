@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import dynamic from "next/dynamic";
 import { motion, type Transition } from "framer-motion";
@@ -8,7 +8,10 @@ const ease: Transition["ease"] = "easeOut";
 
 const PhoneAnimationPlayer = dynamic(
   () => import("../PhoneAnimationPlayer"),
-  { ssr: false }
+  {
+    ssr: false,
+    loading: () => <div className="w-[330px] h-[654px] max-w-full" />,
+  }
 );
 
 const fadeUp = {
