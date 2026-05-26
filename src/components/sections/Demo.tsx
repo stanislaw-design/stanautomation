@@ -31,9 +31,9 @@ const demos = [
     accent: "from-emerald-50 to-[#e8f5fc]",
     border: "border-emerald-100",
     tags: ["Pierogi", "Żurek", "Sezonowe"],
-    videoUrl: "", // Fallback to static interactive preview if no video available
+    videoUrl: "/viedos/italian-restaurant.mp4",
     thumbnailUrl: "",
-    demoUrl: "#",
+    demoUrl: "https://itlaiin-template.vercel.app/",
   },
 ];
 

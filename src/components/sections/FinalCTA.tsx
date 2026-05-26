@@ -3,6 +3,7 @@
 import { motion, AnimatePresence } from "framer-motion";
 import { useState } from "react";
 import posthog from "posthog-js";
+import BookingForm from "@/components/BookingForm";
 
 const EMAIL = "stanislaw@stanautomation.com";
 
@@ -44,6 +45,12 @@ const trustItems = [
 
 export default function FinalCTA() {
   const [copied, setCopied] = useState(false);
+  const [bookingOpen, setBookingOpen] = useState(false);
+
+  function handleBookingToggle() {
+    setBookingOpen((prev) => !prev);
+    posthog.capture("booking_form_toggled", { open: !bookingOpen });
+  }
 
   function handleCopy() {
     navigator.clipboard.writeText(EMAIL).then(() => {
@@ -185,6 +192,48 @@ export default function FinalCTA() {
                 <p className="text-[#00171f] font-[family-name:var(--font-inter)] font-semibold text-sm">+48 505 753 683</p>
               </div>
             </a>
+          </motion.div>
+
+          {/* Booking CTA */}
+          <motion.div
+            initial={{ opacity: 0, y: 16 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.5, delay: 0.25 }}
+            className="mb-6"
+          >
+            <button
+              onClick={handleBookingToggle}
+              className="w-full flex items-center justify-between bg-[#1d4ed8] hover:bg-[#1e40af] text-white font-semibold text-sm px-6 py-4 rounded-2xl transition-colors duration-150 font-[family-name:var(--font-inter)] shadow-lg shadow-[#1d4ed8]/25"
+            >
+              <span>Umów bezpłatne spotkanie</span>
+              <motion.svg
+                animate={{ rotate: bookingOpen ? 180 : 0 }}
+                transition={{ duration: 0.2 }}
+                className="w-5 h-5 shrink-0"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+              </motion.svg>
+            </button>
+
+            <AnimatePresence>
+              {bookingOpen && (
+                <motion.div
+                  initial={{ height: 0, opacity: 0 }}
+                  animate={{ height: "auto", opacity: 1 }}
+                  exit={{ height: 0, opacity: 0 }}
+                  transition={{ duration: 0.3, ease: "easeInOut" }}
+                  className="overflow-hidden"
+                >
+                  <div className="bg-white border border-[#c8e9f7] rounded-2xl p-6 mt-3 shadow-xl shadow-[#1d4ed8]/10">
+                    <BookingForm />
+                  </div>
+                </motion.div>
+              )}
+            </AnimatePresence>
           </motion.div>
 
           <motion.div
