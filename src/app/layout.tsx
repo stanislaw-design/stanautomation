@@ -25,7 +25,7 @@ const mono = Space_Grotesk({
 });
 
 export const metadata: Metadata = {
-  metadataBase: new URL("https://stanautomation.pl"),
+  metadataBase: new URL("https://stanautomation.com"),
   title: {
     default: "StanAutomation — Strony internetowe dla restauracji w Trójmieście",
     template: "%s | StanAutomation",
@@ -58,7 +58,7 @@ export const metadata: Metadata = {
     title: "StanAutomation — Strony internetowe dla restauracji w Trójmieście",
     description:
       "Strona dla Twojej restauracji gotowa w 48 godzin. Lighthouse 90+, AI SEO, gwarancja zwrotu. Gdańsk, Gdynia, Sopot.",
-    url: "https://stanautomation.pl",
+    url: "https://stanautomation.com",
     siteName: "StanAutomation",
     images: [
       {
@@ -96,11 +96,11 @@ const jsonLd = {
   "@graph": [
     {
       "@type": "ProfessionalService",
-      "@id": "https://stanautomation.pl/#service",
+      "@id": "https://stanautomation.com/#service",
       "name": "StanAutomation",
-      "url": "https://stanautomation.pl",
-      "logo": "https://stanautomation.pl/images/stan_automation_logo_transparent.png",
-      "image": "https://stanautomation.pl/images/og-image.png",
+      "url": "https://stanautomation.com",
+      "logo": "https://stanautomation.com/images/stan_automation_logo_transparent.png",
+      "image": "https://stanautomation.com/images/og-image.png",
       "description":
         "Tworzenie nowoczesnych, szybkich stron internetowych dla restauracji z wbudowanym AI SEO i systemem rezerwacji w Trójmieście.",
       "telephone": "+48505753683",
